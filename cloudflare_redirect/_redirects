@@ -1,0 +1,5 @@
+# Cloudflare Pages Redirects
+# 格式: /源路径 目标路径 状态码
+
+# 将所有路径重定向到目标域名，保留路径
+/* https://sushe.up.railway.app/:splat 301
