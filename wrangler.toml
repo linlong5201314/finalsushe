@@ -1,0 +1,6 @@
+name = "finalsushe-redirect"
+compatibility_date = "2024-12-12"
+
+[assets]
+directory = "cloudflare_redirect"
+binding = "ASSETS"
