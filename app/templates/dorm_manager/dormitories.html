@@ -1,0 +1,155 @@
+{% extends 'dorm_manager/base.html' %}
+
+{% block title %}宿舍管理 - 宿管后台{% endblock %}
+{% block header %}宿舍管理{% endblock %}
+
+{% block content %}
+    <!-- 宿舍列表卡片 -->
+    <div class="card">
+        <h2>本楼栋宿舍列表</h2>
+        
+        <div class="search-container" style="margin-bottom: 20px; display: flex; gap: 10px;">
+            <input type="text" class="form-control" placeholder="搜索宿舍号..." id="search-input" style="max-width: 300px;">
+            <button class="btn btn-primary" onclick="searchDormitories()">搜索</button>
+        </div>
+        
+        <div class="table-container">
+            <table id="dormitories-table">
+            <thead>
+                <tr>
+                    <th>宿舍号</th>
+                    <th>楼栋</th>
+                    <th>楼层</th>
+                    <th>性别</th>
+                    <th>容量</th>
+                    <th>当前人数</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if dormitories %}
+                    {% for dormitory in dormitories %}
+                        <tr>
+                            <td>{{ dormitory.dorm_number }}</td>
+                            <td>{{ dormitory.building }}</td>
+                            <td>{{ dormitory.floor }}</td>
+                            <td>{{ dormitory.gender }}</td>
+                            <td>{{ dormitory.capacity }}</td>
+                            <td>{{ dormitory.current_occupancy }}</td>
+                            <td>
+                                {% if dormitory.current_occupancy == 0 %}
+                                    <span class="status-available" style="color: green;">空房</span>
+                                {% elif dormitory.current_occupancy < dormitory.capacity %}
+                                    <span class="status-partial" style="color: orange;">未满</span>
+                                {% else %}
+                                    <span class="status-full" style="color: red;">已满</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <button class="btn btn-primary" onclick="showDormStudents({{ dormitory.id }})">查看学生</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" style="text-align: center;">暂无宿舍数据</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 宿舍详情模态框 -->
+    <div id="dormStudentsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="dormStudentsTitle">宿舍学生列表</h3>
+                <button class="modal-close" onclick="closeDormStudentsModal()">&times;</button>
+            </div>
+            <div id="dormStudentsContent">
+                <p>正在加载...</p>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        // 搜索宿舍功能
+        function searchDormitories() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const rows = document.querySelectorAll('#dormitories-table tbody tr');
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                let match = false;
+                
+                // 只搜索第一列（宿舍号）
+                if (cells[0] && cells[0].textContent.toLowerCase().includes(searchTerm)) {
+                    match = true;
+                }
+                
+                if (match) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+        
+        function showDormStudents(dormId) {
+            const modal = document.getElementById('dormStudentsModal');
+            const content = document.getElementById('dormStudentsContent');
+            const title = document.getElementById('dormStudentsTitle');
+            
+            modal.classList.add('active');
+            content.innerHTML = '<p>正在加载...</p>';
+            
+            // 使用AJAX请求获取宿舍学生
+            fetch(`/dorm_manager/get_dorm_students/${dormId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        title.textContent = `${data.dorm_number} 宿舍学生`;
+                        
+                        if (data.students.length > 0) {
+                            let html = '<div class="table-container"><table><thead><tr><th>姓名</th><th>专业</th><th>电话</th></tr></thead><tbody>';
+                            
+                            data.students.forEach(student => {
+                                html += `<tr>
+                                    <td>${student.name}</td>
+                                    <td>${student.major}</td>
+                                    <td>${student.phone}</td>
+                                </tr>`;
+                            });
+                            
+                            html += '</tbody></table></div>';
+                            content.innerHTML = html;
+                        } else {
+                            content.innerHTML = '<p>该宿舍暂无学生入住。</p>';
+                        }
+                    } else {
+                        content.innerHTML = `<p class="text-danger">加载失败: ${data.message}</p>`;
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    content.innerHTML = '<p class="text-danger">加载出错，请重试。</p>';
+                });
+        }
+        
+        function closeDormStudentsModal() {
+            document.getElementById('dormStudentsModal').classList.remove('active');
+        }
+        
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('dormStudentsModal');
+            if (event.target == modal) {
+                closeDormStudentsModal();
+            }
+        }
+    </script>
+{% endblock %}

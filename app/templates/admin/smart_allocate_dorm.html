@@ -1,0 +1,33 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}智能宿舍分配 - 管理员后台{% endblock %}
+{% block header %}智能宿舍分配{% endblock %}
+
+{% block content %}
+    <!-- 智能分配说明 -->
+    <div class="card">
+        <h2>智能分配规则</h2>
+        <p>系统将按照以下规则为未分配宿舍的学生自动分配宿舍：</p>
+        <ul>
+            <li>优先分配同性别、未满员的宿舍</li>
+            <li>优先考虑同专业同年级的学生分配到同一宿舍</li>
+            <li>其次考虑同专业的学生分配到同一宿舍</li>
+            <li>再次考虑同年级的学生分配到同一宿舍</li>
+            <li>选择当前入住人数最多的宿舍进行分配，以达到均衡分配的目的</li>
+        </ul>
+    </div>
+    
+    <!-- 分配按钮 -->
+    <div class="card">
+        <div class="card-body text-center">
+            <h5 class="card-title">未分配宿舍学生数量</h5>
+            <p class="display-4 text-primary mb-4">{{ unallocated_count }}</p>
+            <form method="POST">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <button type="submit" class="btn btn-lg btn-primary" {% if unallocated_count == 0 %}disabled{% endif %}>
+                    开始智能分配
+                </button>
+            </form>
+        </div>
+    </div>
+{% endblock %}

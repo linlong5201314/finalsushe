@@ -1,0 +1,78 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}编辑学生{% endblock %}
+{% block header %}编辑学生{% endblock %}
+
+{% block content %}
+    <!-- 编辑学生表单 -->
+    <div class="card">
+        <h2>学生信息</h2>
+        <form method="POST" action="{{ url_for('admin.edit_student', student_id=student.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="student_id">学号</label>
+                    <input type="text" id="student_id" name="student_id" value="{{ student.student_id }}" disabled>
+                </div>
+                <div class="form-group">
+                    <label for="username">用户名</label>
+                    <input type="text" id="username" name="username" value="{{ student.user.username }}" disabled>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="name">姓名</label>
+                    <input type="text" id="name" name="name" value="{{ student.name }}" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="email">邮箱</label>
+                    <input type="email" id="email" name="email" value="{{ student.user.email }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="gender">性别</label>
+                    <select id="gender" name="gender" required>
+                        <option value="男" {% if student.gender == '男' %}selected{% endif %}>男</option>
+                        <option value="女" {% if student.gender == '女' %}selected{% endif %}>女</option>
+                    </select>
+                </div>
+            </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="major">专业</label>
+                    <input type="text" id="major" name="major" value="{{ student.major }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="grade">年级</label>
+                    <input type="text" id="grade" name="grade" value="{{ student.grade }}" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="phone">电话</label>
+                    <input type="text" id="phone" name="phone" value="{{ student.phone }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="dorm_id">宿舍号</label>
+                    <select id="dorm_id" name="dorm_id">
+                        <option value="" {% if not student.dorm_id %}selected{% endif %}>未分配</option>
+                        {% for dorm in dormitories %}
+                        <option value="{{ dorm.id }}" {% if student.dorm_id == dorm.id %}selected{% endif %}>{{ dorm.dorm_number }} ({{ dorm.building }} {{ dorm.floor }}层)</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <button type="submit" class="btn btn-primary">更新学生</button>
+                <a href="{{ url_for('admin.students') }}" class="btn btn-secondary" style="background-color: #6c757d; margin-left: 10px;">取消</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

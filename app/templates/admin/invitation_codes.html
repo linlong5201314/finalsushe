@@ -1,0 +1,44 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}邀请码管理{% endblock %}
+{% block header %}邀请码管理{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="margin-bottom: 20px;">
+        <form method="post" style="display: inline;">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <button type="submit" class="btn btn-primary">生成新邀请码</button>
+        </form>
+    </div>
+    
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>邀请码</th>
+                    <th>状态</th>
+                    <th>生成时间</th>
+                    <th>使用时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for code in codes %}
+                <tr>
+                    <td style="font-family: monospace; font-size: 1.2em; font-weight: bold;">{{ code.code }}</td>
+                    <td>
+                        {% if code.is_used %}
+                        <span style="color: red;">已使用</span>
+                        {% else %}
+                        <span style="color: green;">未使用</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ code.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    <td>{{ code.used_at.strftime('%Y-%m-%d %H:%M') if code.used_at else '-' }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

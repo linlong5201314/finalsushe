@@ -1,0 +1,20 @@
+<view class="container">
+  <view class="card" style="background:var(--primary-gradient);color:#fff;">
+    <text style="font-size:36rpx;font-weight:bold;">创建账户</text>
+    <text style="opacity:0.9;margin-top:8rpx;">填写信息完成注册</text>
+  </view>
+  <view class="card">
+    <input class="input" placeholder="学号/工号" bindinput="onInput" data-field="username" />
+    <input class="input" placeholder="姓名" bindinput="onInput" data-field="name" />
+    <input class="input" placeholder="邮箱(选填)" bindinput="onInput" data-field="email" />
+    <input class="input" password placeholder="密码" bindinput="onInput" data-field="password" />
+    <input class="input" password placeholder="确认密码" bindinput="onInput" data-field="confirm_password" />
+    <input class="input" placeholder="联系电话" bindinput="onInput" data-field="phone" />
+    <picker mode="selector" range="{{userTypes}}" bindchange="onTypeChange"><view class="picker">用户类型：{{userTypes[typeIndex]}}</view></picker>
+    <view wx:if="{{userTypes[typeIndex]==='dorm_manager'}}">
+      <picker mode="selector" range="{{buildings}}" bindchange="onBuildingChange"><view class="picker">负责楼栋：{{buildings[buildingIndex]||'请选择'}}</view></picker>
+      <input class="input" placeholder="邀请码" bindinput="onInput" data-field="invitation_code" />
+    </view>
+    <button class="btn-primary" bindtap="submit">提交注册</button>
+  </view>
+</view>

@@ -1,0 +1,12 @@
+<view class="container">
+  <block wx:for="{{bills}}" wx:key="id">
+    <view class="card">
+      <view class="list-item"><text class="label">月份</text><text>{{item.month}}</text></view>
+      <view class="list-item"><text class="label">电/水</text><text>{{item.electricity}}度 / {{item.water}}吨</text></view>
+      <view class="list-item"><text class="label">总费用</text><text style="color:#fa5151;font-weight:bold;">¥{{item.total_cost}}</text></view>
+      <view class="list-item"><text class="label">状态</text><text class="status status-{{item.status}}">{{item.status}}</text></view>
+      <button wx:if="{{item.status==='unpaid'}}" class="btn-primary" bindtap="pay" data-id="{{item.id}}">立即支付</button>
+    </view>
+  </block>
+  <block wx:if="{{bills.length===0}}"><view style="text-align:center;color:#999;">暂无账单</view></block>
+</view>

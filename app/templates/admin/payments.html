@@ -1,0 +1,81 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}缴费记录 - 管理员后台{% endblock %}
+{% block header %}缴费记录{% endblock %}
+
+{% block content %}
+    <!-- 缴费记录内容 -->
+    <div class="card">
+        <h2>缴费记录</h2>
+        
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="搜索学生姓名或学号..." id="search-input">
+            <button class="btn btn-primary" onclick="searchPayments()">搜索</button>
+        </div>
+        
+        <div class="table-container">
+            <table id="payments-table">
+            <thead>
+                <tr>
+                    <th>学生姓名</th>
+                    <th>学号</th>
+                    <th>宿舍</th>
+                    <th>账单月份</th>
+                    <th>支付金额</th>
+                    <th>支付方式</th>
+                    <th>支付状态</th>
+                    <th>支付时间</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if payments %}
+                    {% for payment in payments %}
+                        <tr>
+                            <td>{{ payment.student.name }}</td>
+                            <td>{{ payment.student.student_id }}</td>
+                            <td>{{ payment.utility_bill.dormitory.dorm_number if payment.utility_bill.dormitory else '未知' }}</td>
+                            <td>{{ payment.utility_bill.month }}</td>
+                            <td>{{ payment.amount }} 元</td>
+                            <td>{{ payment.payment_method }}</td>
+                            <td>{{ payment.payment_status }}</td>
+                            <td>{{ payment.payment_date.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" style="text-align: center;">暂无缴费记录</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+        </div>
+    </div>
+    
+    <script>
+        // 搜索缴费记录功能
+        function searchPayments() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const rows = document.querySelectorAll('#payments-table tbody tr');
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                let match = false;
+                
+                cells.forEach(cell => {
+                    if (cell.textContent.toLowerCase().includes(searchTerm)) {
+                        match = true;
+                    }
+                });
+                
+                row.style.display = match ? '' : 'none';
+            });
+        }
+        
+        // 支持回车键搜索
+        document.getElementById('search-input').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                searchPayments();
+            }
+        });
+    </script>
+{% endblock %}

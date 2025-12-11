@@ -1,0 +1,73 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}学生管理{% endblock %}
+{% block header %}学生管理{% endblock %}
+
+{% block content %}
+    <!-- 学生列表卡片 -->
+    <div class="card">
+        <h2>学生列表</h2>
+        <div style="margin-bottom: 20px;">
+            <a href="{{ url_for('admin.add_student') }}" class="btn btn-primary">添加学生</a>
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#importModal">
+                批量导入
+            </button>
+        </div>
+
+        <!-- 批量导入模态框 -->
+        <div class="modal fade" id="importModal" tabindex="-1" aria-labelledby="importModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="importModalLabel">批量导入学生</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form action="{{ url_for('admin.bulk_import_students') }}" method="post" enctype="multipart/form-data">
+                            <div class="mb-3">
+                                <label for="file" class="form-label">选择CSV文件</label>
+                                <input type="file" class="form-control" id="file" name="file" accept=".csv" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary">上传并导入</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>学号</th>
+                        <th>姓名</th>
+                        <th>邮箱</th>
+                        <th>性别</th>
+                        <th>专业</th>
+                        <th>年级</th>
+                        <th>宿舍</th>
+                        <th>电话</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for student in students %}
+                    <tr>
+                        <td>{{ student.student_id }}</td>
+                        <td>{{ student.name }}</td>
+                        <td>{{ student.user.email }}</td>
+                        <td>{{ student.gender }}</td>
+                        <td>{{ student.major }}</td>
+                        <td>{{ student.grade }}</td>
+                        <td>{{ student.dormitory.dorm_number if student.dormitory else '未分配' }}</td>
+                        <td>{{ student.phone }}</td>
+                        <td>
+                            <a href="{{ url_for('admin.edit_student', student_id=student.id) }}" class="btn btn-primary">编辑</a>
+                            <a href="{{ url_for('admin.delete_student', student_id=student.id) }}" class="btn btn-danger" onclick="return confirm('确定要删除该学生吗？')">删除</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

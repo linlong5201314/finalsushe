@@ -1,0 +1,97 @@
+{% extends 'student/base.html' %}
+
+{% block title %}我的宿舍调换申请{% endblock %}
+{% block header %}我的宿舍调换申请{% endblock %}
+
+{% block content %}
+    <style>
+        /* 表格样式 */
+        table {
+            margin-top: 20px;
+        }
+        
+        /* 状态标签样式 */
+        .status-pending {
+            background-color: #ffc107;
+            color: #333;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-approved {
+            background-color: #28a745;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-rejected {
+            background-color: #dc3545;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        /* 无数据样式 */
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+    </style>
+    
+    <!-- 宿舍调换申请列表卡片 -->
+    <div class="card">
+        <h2>我的宿舍调换申请</h2>
+        <a href="{{ url_for('student.submit_dorm_change') }}" class="btn">提交新申请</a>
+        
+        {% if requests %}
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>申请时间</th>
+                        <th>当前宿舍</th>
+                        <th>目标宿舍</th>
+                        <th>调换原因</th>
+                        <th>状态</th>
+                        <th>处理意见</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for req in requests %}
+                    <tr>
+                        <td>{{ req.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>{{ req.current_dorm.dorm_number if req.current_dorm else '未知' }}</td>
+                        <td>{{ req.target_dorm.dorm_number if req.target_dorm else '未指定' }}</td>
+                        <td>{{ req.reason }}</td>
+                        <td>
+                            {% if req.status == 'pending' %}
+                                <span class="status-pending">待处理</span>
+                            {% elif req.status == 'approved' %}
+                                <span class="status-approved">已批准</span>
+                            {% else %}
+                                <span class="status-rejected">已拒绝</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ req.remark or '无' }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="no-data">
+            <div class="no-data-icon">📋</div>
+            <h3>暂无宿舍调换申请</h3>
+            <p>点击上方按钮提交新申请</p>
+        </div>
+        {% endif %}
+    </div>
+{% endblock %}

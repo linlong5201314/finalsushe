@@ -1,0 +1,293 @@
+{% extends 'admin/base.html' %}
+{% block title %}访客管理 - 管理员后台{% endblock %}
+{% block styles %}
+    <style>
+        /* 状态标签样式 */
+        .status-in {
+            background-color: #28a745;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status-out {
+            background-color: #6c757d;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
+{% endblock %}
+{% block content %}
+        <!-- 访客列表卡片 -->
+        <div class="card">
+            <h2>访客管理</h2>
+            <div style="margin-bottom: 20px;">
+                <a href="{{ url_for('student.visitor_register') }}" class="btn btn-primary">登记访客</a>
+            </div>
+            <div class="table-container">
+                <table class="table table-striped table-sm">
+                <thead>
+                    <tr>
+                        <th>访客姓名</th>
+                        <th>身份证号</th>
+                        <th>电话</th>
+                        <th>访问时间</th>
+                        <th>离开时间</th>
+                        <th>访问目的</th>
+                        <th>访问宿舍</th>
+                        <th>被访学生</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for visitor in visitors %}
+                    <tr>
+                        <td>{{ visitor.name }}</td>
+                        <td>{{ visitor.id_card }}</td>
+                        <td>{{ visitor.phone }}</td>
+                        <td>{{ visitor.visit_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>{{ visitor.leave_date.strftime('%Y-%m-%d %H:%M') if visitor.leave_date else '未离开' }}</td>
+                        <td>{{ visitor.purpose }}</td>
+                        <td>{{ visitor.dorm_number }}</td>
+                        <td>{{ visitor.student_name }}</td>
+                        <td>
+                            {% if visitor.status == 'in' %}
+                                <span class="status-in">在访</span>
+                            {% else %}
+                                <span class="status-out">已离开</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if visitor.status == 'in' %}
+                                <button class="btn btn-success" onclick="markVisitorLeave({{ visitor.id }})">标记离开</button>
+                            {% endif %}
+                            <button class="btn btn-primary" onclick="showVisitorDetails({{ visitor.id }})">查看详情</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                </table>
+            </div>
+        </div>
+        
+        <!-- 访客详情模态框 -->
+        <div id="visitorModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="visitorModalTitle">访客详情</h2>
+                    <span class="close" onclick="closeVisitorModal()">&times;</span>
+                </div>
+                <div id="visitorModalBody">
+                    <!-- 访客详情将通过JavaScript动态加载 -->
+                </div>
+            </div>
+        </div>
+        
+        <!-- 确认操作模态框 -->
+        <div id="confirmModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="confirmModalTitle">确认操作</h2>
+                    <span class="close" onclick="closeConfirmModal()">&times;</span>
+                </div>
+                <div id="confirmModalBody">
+                    <p id="confirmMessage">确定要执行此操作吗？</p>
+                </div>
+                <div>
+                    <button id="confirmBtn" class="btn btn-primary">确认</button>
+                    <button id="cancelBtn" class="btn btn-secondary">取消</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 结果提示模态框 -->
+        <div id="resultModal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 id="resultModalTitle">操作结果</h2>
+                    <span class="close" onclick="closeResultModal()">&times;</span>
+                </div>
+                <div id="resultModalBody">
+                    <div id="resultIcon">✅</div>
+                    <p id="resultMessage">操作成功！</p>
+                </div>
+                <div>
+                    <button id="resultBtn" class="btn btn-primary">确定</button>
+                </div>
+            </div>
+        </div>
+        
+        <script>
+        // 访客详情模态框控制函数
+        function showVisitorDetails(visitorId) {
+            const modal = document.getElementById('visitorModal');
+            const modalBody = document.getElementById('visitorModalBody');
+            
+            // 显示加载状态
+            modalBody.innerHTML = '<div style="text-align: center; padding: 50px;"><p>加载中...</p></div>';
+            modal.style.display = 'block';
+            
+            // 获取访客详情
+            fetch(`/admin/get_visitor_details/${visitorId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        let detailsHtml = `
+                            <div>
+                                <h3>访客：${data.visitor.name}</h3>
+                                <p><strong>身份证号：</strong>${data.visitor.id_card}</p>
+                                <p><strong>联系电话：</strong>${data.visitor.phone}</p>
+                                <p><strong>访问宿舍：</strong>${data.visitor.dorm_number}</p>
+                                <p><strong>被访学生：</strong>${data.visitor.student_name}</p>
+                                <p><strong>访问目的：</strong>${data.visitor.purpose}</p>
+                                <p><strong>访问时间：</strong>${data.visitor.visit_date}</p>
+                                <p><strong>离开时间：</strong>${data.visitor.leave_date}</p>
+                                <p><strong>状态：</strong>${data.visitor.status_text}</p>
+                            </div>
+                        `;
+                        modalBody.innerHTML = detailsHtml;
+                        document.getElementById('visitorModalTitle').textContent = `访客详情 - ${data.visitor.name}`;
+                    } else {
+                        modalBody.innerHTML = `<div style="text-align: center; padding: 50px; color: red;"><p>${data.message}</p></div>`;
+                    }
+                })
+                .catch(error => {
+                    modalBody.innerHTML = `<div style="text-align: center; padding: 50px; color: red;"><p>加载失败，请重试</p></div>`;
+                    console.error('Error:', error);
+                });
+        }
+        
+        function closeVisitorModal() {
+            document.getElementById('visitorModal').style.display = 'none';
+        }
+        
+        // 全局变量，用于存储当前要处理的访客ID
+        let currentVisitorId = null;
+        
+        // 确认模态框控制函数
+        function showConfirmModal(visitorId) {
+            currentVisitorId = visitorId;
+            const modal = document.getElementById('confirmModal');
+            modal.style.display = 'block';
+        }
+        
+        function closeConfirmModal() {
+            document.getElementById('confirmModal').style.display = 'none';
+            currentVisitorId = null;
+        }
+        
+        // 结果模态框控制函数
+        function showResultModal(success, message) {
+            const modal = document.getElementById('resultModal');
+            const icon = document.getElementById('resultIcon');
+            const messageEl = document.getElementById('resultMessage');
+            
+            if (success) {
+                icon.textContent = '✅';
+                icon.style.color = '#28a745';
+                messageEl.textContent = message || '操作成功！';
+                messageEl.style.color = '#333';
+            } else {
+                icon.textContent = '❌';
+                icon.style.color = '#dc3545';
+                messageEl.textContent = message || '操作失败！';
+                messageEl.style.color = '#dc3545';
+            }
+            
+            modal.style.display = 'block';
+        }
+        
+        function closeResultModal() {
+            document.getElementById('resultModal').style.display = 'none';
+        }
+        
+        // 标记访客离开函数
+        function markVisitorLeave(visitorId) {
+            if (!visitorId) {
+                console.error('Invalid visitor ID');
+                alert('操作失败：无法获取访客ID');
+                return;
+            }
+            // 显示确认模态框
+            showConfirmModal(visitorId);
+        }
+        
+        // 确认标记离开
+        function confirmMarkLeave() {
+            if (currentVisitorId) {
+                const visitorId = currentVisitorId;
+                // 关闭确认模态框
+                closeConfirmModal();
+                
+                // 执行标记离开操作
+                fetch(`/admin/mark_visitor_leave/${visitorId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': '{{ csrf_token() }}'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // 显示成功结果
+                        showResultModal(true, '标记成功！');
+                    } else {
+                        // 显示失败结果
+                        showResultModal(false, '标记失败：' + data.message);
+                    }
+                })
+                .catch(error => {
+                    // 显示错误结果
+                    showResultModal(false, '操作失败，请重试');
+                    console.error('Error:', error);
+                });
+            } else {
+                console.error('No visitor ID selected for confirmation');
+                alert('操作失败：未选择访客');
+                closeConfirmModal();
+            }
+        }
+        
+        // 初始化事件监听器
+        document.addEventListener('DOMContentLoaded', function() {
+            // 确认模态框按钮事件
+            document.getElementById('confirmBtn').addEventListener('click', function() {
+                confirmMarkLeave();
+            });
+            
+            document.getElementById('cancelBtn').addEventListener('click', function() {
+                closeConfirmModal();
+            });
+            
+            // 结果模态框按钮事件
+            document.getElementById('resultBtn').addEventListener('click', function() {
+                closeResultModal();
+                // 刷新页面
+                window.location.reload();
+            });
+        });
+        
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target == modal) {
+                    if (modal.id == 'visitorModal') {
+                        closeVisitorModal();
+                    } else if (modal.id == 'confirmModal') {
+                        closeConfirmModal();
+                    } else if (modal.id == 'resultModal') {
+                        closeResultModal();
+                    }
+                }
+            });
+        }
+        </script>
+{% endblock %}

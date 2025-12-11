@@ -1,0 +1,113 @@
+{% extends 'student/base.html' %}
+
+{% block title %}提交报修{% endblock %}
+{% block header %}提交报修{% endblock %}
+
+{% block content %}
+    <style>
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #555;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        /* 按钮样式 */
+        .btn {
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-right: 15px;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            box-shadow: 0 8px 20px rgba(108, 117, 125, 0.3);
+        }
+    </style>
+    
+    <!-- 报修表单卡片 -->
+    <div class="card">
+        <h2>报修信息填写</h2>
+        <form method="POST" action="{{ url_for('student.submit_repair') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="location_type">报修场所类型</label>
+                    <select id="location_type" name="location_type" required>
+                        <option value="">请选择场所类型</option>
+                        <option value="dorm">宿舍</option>
+                        <option value="training">实训楼</option>
+                        <option value="teaching">教学楼</option>
+                        <option value="other">其他</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="repair_type">报修类型</label>
+                    <select id="repair_type" name="repair_type" required>
+                        <option value="">请选择报修类型</option>
+                        <option value="water">水电维修</option>
+                        <option value="air_conditioner">空调维修</option>
+                        <option value="furniture">家具维修</option>
+                        <option value="network">网络维修</option>
+                        <option value="other">其他维修</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="location_detail">具体位置</label>
+                    <input type="text" id="location_detail" name="location_detail" required placeholder="请输入具体位置，如：A栋301宿舍">
+                </div>
+                
+                <div class="form-group">
+                    <label for="title">报修标题</label>
+                    <input type="text" id="title" name="title" required placeholder="请输入报修标题，如：宿舍电灯损坏">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="content">详细描述</label>
+                <textarea id="content" name="content" required placeholder="请详细描述故障情况，如：宿舍阳台的电灯不亮，影响正常使用。"></textarea>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="contact_phone">联系电话</label>
+                    <input type="tel" id="contact_phone" name="contact_phone" value="{{ student.phone }}" required placeholder="请输入联系电话">
+                </div>
+                
+                <div class="form-group">
+                    <label for="urgent_level">紧急程度</label>
+                    <select id="urgent_level" name="urgent_level">
+                        <option value="normal">一般</option>
+                        <option value="urgent">紧急</option>
+                        <option value="very_urgent">非常紧急</option>
+                    </select>
+                </div>
+            </div>
+            
+            <div style="margin-top: 40px;">
+                <button type="submit" class="btn">提交报修</button>
+                <a href="{{ url_for('student.my_repairs') }}" class="btn btn-secondary">查看我的报修</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

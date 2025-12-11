@@ -1,0 +1,140 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}管理员仪表板{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+        // 宿舍入住率图表
+        var dormOccupancyChart = echarts.init(document.getElementById('dorm-occupancy-chart'));
+        var dormOccupancyOption = {
+            tooltip: {
+                trigger: 'item'
+            },
+            legend: {
+                orient: 'vertical',
+                left: 'left',
+            },
+            series: [
+                {
+                    name: '宿舍状态',
+                    type: 'pie',
+                    radius: ['40%', '70%'],
+                    avoidLabelOverlap: false,
+                    label: {
+                        show: false,
+                        position: 'center'
+                    },
+                    emphasis: {
+                        label: {
+                            show: true,
+                            fontSize: '20',
+                            fontWeight: 'bold'
+                        }
+                    },
+                    labelLine: {
+                        show: false
+                    },
+                    data: {{ dorm_occupancy_data | tojson }}
+                }
+            ]
+        };
+        dormOccupancyChart.setOption(dormOccupancyOption);
+
+        // 各楼栋报修数量图表
+        var repairByBuildingChart = echarts.init(document.getElementById('repair-by-building-chart'));
+        var repairByBuildingOption = {
+            tooltip: {
+                trigger: 'axis',
+                axisPointer: {
+                    type: 'shadow'
+                }
+            },
+            xAxis: {
+                type: 'category',
+                data: {{ building_repair_data.buildings | tojson }}
+            },
+            yAxis: {
+                type: 'value'
+            },
+            series: [
+                {
+                    name: '报修数量',
+                    type: 'bar',
+                    data: {{ building_repair_data.counts | tojson }}
+                }
+            ]
+        };
+        repairByBuildingChart.setOption(repairByBuildingOption);
+
+        // 窗口大小改变时重绘图表
+        window.addEventListener('resize', function() {
+            dormOccupancyChart.resize();
+            repairByBuildingChart.resize();
+        });
+    });
+</script>
+{% endblock %}
+{% block header %}管理员仪表板{% endblock %}
+
+{% block content %}
+    <!-- 统计卡片 -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>总学生数</h3>
+            <div class="value">{{ total_students }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>总宿舍数</h3>
+            <div class="value">{{ total_dorms }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>总报修数</h3>
+            <div class="value">{{ total_repairs }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>待处理报修</h3>
+            <div class="value">{{ pending_repairs }}</div>
+        </div>
+    </div>
+    
+    <!-- 可视化图表 -->
+    <div class="charts-grid">
+        <div class="card chart-card">
+            <h3>宿舍入住率</h3>
+            <div id="dorm-occupancy-chart" style="width: 100%; height: 400px;"></div>
+        </div>
+        <div class="card chart-card">
+            <h3>各楼栋报修数量</h3>
+            <div id="repair-by-building-chart" style="width: 100%; height: 400px;"></div>
+        </div>
+    </div>
+
+    <!-- 最近活动卡片 -->
+    <div class="card">
+        <h2>最近活动</h2>
+        {% if activities %}
+            <ul class="activity-list">
+                {% for activity in activities %}
+                    <li class="activity-item">
+                        <div class="activity-dot {{ activity.type }}"></div>
+                        <div class="activity-content">
+                            <div class="activity-title">{{ activity.title }}</div>
+                            <div class="activity-desc">{{ activity.description }}</div>
+                            <div class="activity-meta">
+                                {{ activity.time.strftime('%Y-%m-%d %H:%M') }}
+                                {% if activity.status %}
+                                    <span class="status-{{ activity.status }}">
+                                        {{ activity.status | capitalize }}
+                                    </span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p style="color: var(--text-secondary);">暂无活动记录</p>
+        {% endif %}
+    </div>
+{% endblock %}

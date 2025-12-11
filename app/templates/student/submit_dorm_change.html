@@ -1,0 +1,70 @@
+{% extends 'student/base.html' %}
+
+{% block title %}宿舍调换申请{% endblock %}
+{% block header %}宿舍调换申请{% endblock %}
+
+{% block content %}
+    <style>
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #555;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        /* 按钮样式 */
+        .btn {
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-right: 15px;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            box-shadow: 0 8px 20px rgba(108, 117, 125, 0.3);
+        }
+    </style>
+    
+    <!-- 宿舍调换申请表单卡片 -->
+    <div class="card">
+        <h2>宿舍调换申请</h2>
+        <form method="POST" action="{{ url_for('student.submit_dorm_change') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <div class="form-group">
+                <label for="reason">调换原因</label>
+                <textarea id="reason" name="reason" required placeholder="请详细说明调换宿舍的原因"></textarea>
+            </div>
+            
+            <div class="form-group">
+                <label for="target_dorm_id">目标宿舍（可选）</label>
+                <select id="target_dorm_id" name="target_dorm_id">
+                    <option value="">请选择目标宿舍（可选）</option>
+                    {% for dorm in available_dorms %}
+                        <option value="{{ dorm.id }}">{{ dorm.dorm_number }} - {{ dorm.building }}栋{{ dorm.floor }}楼</option>
+                    {% endfor %}
+                </select>
+            </div>
+            
+            <div style="margin-top: 40px;">
+                <button type="submit" class="btn">提交申请</button>
+                <a href="{{ url_for('student.my_dorm') }}" class="btn btn-secondary">返回我的宿舍</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

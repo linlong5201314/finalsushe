@@ -1,0 +1,130 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}宿舍管理{% endblock %}
+{% block header %}宿舍管理{% endblock %}
+
+{% block content %}
+    <!-- 宿舍列表卡片 -->
+    <div class="card">
+        <h2>宿舍列表</h2>
+        <div style="margin-bottom: 20px;">
+            <a href="{{ url_for('admin.add_dormitory') }}" class="btn btn-primary">添加宿舍</a>
+        </div>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>宿舍号</th>
+                        <th>楼栋</th>
+                        <th>楼层</th>
+                        <th>容量</th>
+                        <th>当前入住</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for dorm in dormitories %}
+                    <tr>
+                        <td>{{ dorm.dorm_number }}</td>
+                        <td>{{ dorm.building }}</td>
+                        <td>{{ dorm.floor }}</td>
+                        <td>{{ dorm.capacity }}</td>
+                        <td>{{ dorm.current_occupancy }}</td>
+                        <td>
+                            <a href="{{ url_for('admin.edit_dormitory', dorm_id=dorm.id) }}" class="btn btn-primary">编辑</a>
+                            <button class="btn btn-info" onclick="showStudents({{ dorm.id }})">查看学生</button>
+                            <a href="#" class="btn btn-danger">删除</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- 学生列表模态框 -->
+    <div id="studentsModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">宿舍学生列表</h3>
+                <button class="modal-close" onclick="closeModal()">&times;</button>
+            </div>
+            <div id="modalBody">
+                <!-- 学生列表将通过JavaScript动态加载 -->
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // 模态框控制函数
+        function showStudents(dormId) {
+            const modal = document.getElementById('studentsModal');
+            const modalBody = document.getElementById('modalBody');
+            
+            // 显示加载状态
+            modalBody.innerHTML = '<div style="text-align: center; padding: 50px;"><p>加载中...</p></div>';
+            modal.classList.add('active');
+            
+            // 模拟获取宿舍学生数据
+            fetch(`/admin/get_dorm_students/${dormId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        let studentsHtml = '<div class="table-container"><table>';
+                        studentsHtml += '<thead>';
+                        studentsHtml += '<tr>';
+                        studentsHtml += '<th>学号</th>';
+                        studentsHtml += '<th>姓名</th>';
+                        studentsHtml += '<th>性别</th>';
+                        studentsHtml += '<th>专业</th>';
+                        studentsHtml += '<th>年级</th>';
+                        studentsHtml += '<th>电话</th>';
+                        studentsHtml += '</tr>';
+                        studentsHtml += '</thead>';
+                        studentsHtml += '<tbody>';
+                        
+                        if (data.students.length > 0) {
+                            data.students.forEach(student => {
+                                studentsHtml += '<tr>';
+                                studentsHtml += `<td>${student.student_id}</td>`;
+                                studentsHtml += `<td>${student.name}</td>`;
+                                studentsHtml += `<td>${student.gender}</td>`;
+                                studentsHtml += `<td>${student.major}</td>`;
+                                studentsHtml += `<td>${student.grade}</td>`;
+                                studentsHtml += `<td>${student.phone}</td>`;
+                                studentsHtml += '</tr>';
+                            });
+                        } else {
+                            studentsHtml += '<tr>';
+                            studentsHtml += '<td colspan="6" style="text-align: center;">该宿舍暂无学生入住</td>';
+                            studentsHtml += '</tr>';
+                        }
+                        
+                        studentsHtml += '</tbody>';
+                        studentsHtml += '</table></div>';
+                        modalBody.innerHTML = studentsHtml;
+                        
+                        // 更新模态框标题
+                        document.getElementById('modalTitle').textContent = `宿舍 ${data.dorm_number} 学生列表`;
+                    } else {
+                        modalBody.innerHTML = `<div style="text-align: center; padding: 50px; color: red;"><p>${data.message}</p></div>`;
+                    }
+                })
+                .catch(error => {
+                    modalBody.innerHTML = `<div style="text-align: center; padding: 50px; color: red;"><p>加载失败，请重试</p></div>`;
+                    console.error('Error:', error);
+                });
+        }
+        
+        function closeModal() {
+            document.getElementById('studentsModal').classList.remove('active');
+        }
+        
+        // 点击模态框外部关闭
+        document.getElementById('studentsModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+    </script>
+{% endblock %}

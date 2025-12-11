@@ -1,0 +1,41 @@
+{
+  "pages": [
+    "pages/login/login",
+    "pages/register/register",
+    "pages/forgot/forgot",
+    "pages/index/index",
+    "pages/profile/profile",
+    "pages/dorm/dorm",
+    "pages/repair/repair",
+    "pages/bill/bill",
+    "pages/visitor/visitor",
+    "pages/dorm_change/dorm_change",
+    "pages/dm_dashboard/dm_dashboard",
+    "pages/dm_students/dm_students",
+    "pages/dm_dorms/dm_dorms",
+    "pages/dm_repairs/dm_repairs",
+    "pages/dm_visitors/dm_visitors",
+    "pages/dm_dorm_changes/dm_dorm_changes",
+    "pages/dm_password_resets/dm_password_resets",
+    "pages/admin_dashboard/admin_dashboard",
+    "pages/admin_students/admin_students",
+    "pages/admin_dorm_managers/admin_dorm_managers",
+    "pages/admin_dorms/admin_dorms",
+    "pages/admin_smart_allocate/admin_smart_allocate",
+    "pages/admin_bills/admin_bills",
+    "pages/admin_bill_stats/admin_bill_stats",
+    "pages/admin_payments/admin_payments",
+    "pages/admin_repairs/admin_repairs",
+    "pages/admin_visitors/admin_visitors",
+    "pages/admin_inv_codes/admin_inv_codes",
+    "pages/admin_password_resets/admin_password_resets"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#007aff",
+    "navigationBarTitleText": "宿舍管理系统",
+    "navigationBarTextStyle": "white"
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json"
+}

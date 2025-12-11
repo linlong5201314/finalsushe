@@ -1,0 +1,18 @@
+<view class="container">
+  <view class="card" style="background:var(--primary-gradient);color:#fff;">
+    <text style="font-size:40rpx;font-weight:bold;">宿舍管理系统</text>
+    <text style="opacity:0.9;margin-top:10rpx;">请登录您的账户</text>
+  </view>
+  <view class="card">
+    <input class="input" placeholder="学号/工号" bindinput="onInput" data-field="username" />
+    <input class="input" password placeholder="密码" bindinput="onInput" data-field="password" />
+    <picker mode="selector" range="{{userTypes}}" bindchange="onTypeChange">
+      <view class="picker">用户类型：{{userTypes[typeIndex]}}</view>
+    </picker>
+    <button class="btn-primary" bindtap="login">登录</button>
+    <view style="display:flex;justify-content:space-between;margin-top:20rpx;color:var(--secondary-text-color);">
+      <text bindtap="goRegister" style="color:var(--primary-color);">注册账户</text>
+      <text bindtap="goForgot" style="color:var(--primary-color);">忘记密码</text>
+    </view>
+  </view>
+</view>

@@ -1,0 +1,20 @@
+<view class="container">
+  <view class="card" style="align-items:center;display:flex;flex-direction:column;">
+    <image class="avatar" src="{{info.photo ? baseUrl + '/' + info.photo : '/images/default_avatar.png'}}" bindtap="uploadPhoto" mode="aspectFill" />
+    <text style="font-size:36rpx;font-weight:bold;margin-top:10rpx;">{{info.name}}</text>
+    <text style="opacity:0.8;">{{info.student_id}}</text>
+  </view>
+
+  <view class="card">
+    <view class="list-item"><text class="label">专业</text><text>{{info.major}}</text></view>
+    <view class="list-item"><text class="label">年级</text><text>{{info.grade}}</text></view>
+    <view class="list-item"><text class="label">性别</text><text>{{info.gender}}</text></view>
+    <view class="list-item"><text class="label">电话</text><text>{{info.phone}}</text></view>
+  </view>
+
+  <view class="card">
+    <view class="list-item"><text class="label">宿舍号</text><text>{{info.dorm.number}}</text></view>
+    <view class="list-item"><text class="label">楼栋</text><text>{{info.dorm.building}}</text></view>
+    <view class="list-item"><text class="label">楼层</text><text>{{info.dorm.floor}}</text></view>
+  </view>
+</view>

@@ -1,0 +1,43 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}编辑宿舍{% endblock %}
+{% block header %}编辑宿舍{% endblock %}
+
+{% block content %}
+    <!-- 编辑宿舍表单 -->
+    <div class="card">
+        <h2>宿舍信息</h2>
+        <form method="POST" action="{{ url_for('admin.edit_dormitory', dorm_id=dormitory.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="dorm_number">宿舍号</label>
+                    <input type="text" id="dorm_number" name="dorm_number" value="{{ dormitory.dorm_number }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="building">楼栋</label>
+                    <input type="text" id="building" name="building" value="{{ dormitory.building }}" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="floor">楼层</label>
+                    <input type="number" id="floor" name="floor" value="{{ dormitory.floor }}" min="1" required>
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="capacity">容量</label>
+                    <input type="number" id="capacity" name="capacity" value="{{ dormitory.capacity }}" min="1" max="10" required>
+                </div>
+            </div>
+            
+            <div style="margin-top: 20px;">
+                <button type="submit" class="btn btn-primary">更新宿舍</button>
+                <a href="{{ url_for('admin.dormitories') }}" class="btn btn-secondary" style="background-color: #6c757d; margin-left: 10px;">取消</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

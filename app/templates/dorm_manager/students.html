@@ -1,0 +1,87 @@
+{% extends 'dorm_manager/base.html' %}
+
+{% block title %}学生管理 - 宿管后台{% endblock %}
+{% block header %}学生管理{% endblock %}
+
+{% block content %}
+    <!-- 学生列表卡片 -->
+    <div class="card">
+        <h2>本楼栋学生列表</h2>
+        
+        <div class="search-container" style="margin-bottom: 20px; display: flex; gap: 10px;">
+            <input type="text" class="form-control" placeholder="搜索学生姓名或学号..." id="search-input" style="max-width: 300px;">
+            <button class="btn btn-primary" onclick="searchStudents()">搜索</button>
+        </div>
+        
+        <div class="table-container">
+            <table id="students-table">
+                <thead>
+                <tr>
+                    <th>学号</th>
+                    <th>姓名</th>
+                    <th>性别</th>
+                    <th>专业</th>
+                    <th>年级</th>
+                    <th>宿舍</th>
+                    <th>联系电话</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if students %}
+                    {% for student in students %}
+                        <tr>
+                            <td>{{ student.student_id }}</td>
+                            <td>{{ student.name }}</td>
+                            <td>{{ student.gender }}</td>
+                            <td>{{ student.major }}</td>
+                            <td>{{ student.grade }}</td>
+                            <td>{{ student.dormitory.dorm_number if student.dormitory else '未分配' }}</td>
+                            <td>{{ student.phone }}</td>
+                            <td>
+                                <button class="btn btn-primary" onclick="showStudentInfo({{ student.id }})">查看详情</button>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" style="text-align: center;">暂无学生数据</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        // 搜索学生功能
+        function searchStudents() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const rows = document.querySelectorAll('#students-table tbody tr');
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                let match = false;
+                
+                cells.forEach(cell => {
+                    if (cell.textContent.toLowerCase().includes(searchTerm)) {
+                        match = true;
+                    }
+                });
+                
+                if (match) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+        
+        function showStudentInfo(id) {
+            // 这里可以添加查看详情的逻辑，比如弹窗或跳转
+            alert('功能开发中：查看学生 ' + id + ' 的详情');
+        }
+    </script>
+{% endblock %}

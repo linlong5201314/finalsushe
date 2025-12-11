@@ -1,0 +1,78 @@
+{% extends 'dorm_manager/base.html' %}
+
+{% block title %}宿管管理系统 - 仪表盘{% endblock %}
+{% block header %}宿管仪表板{% endblock %}
+
+{% block content %}
+    <!-- 统计卡片 -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3>本楼栋学生总数</h3>
+            <div class="value">{{ total_students }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>本楼栋宿舍总数</h3>
+            <div class="value">{{ total_dorms }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>待处理报修</h3>
+            <div class="value">{{ pending_repairs }}</div>
+        </div>
+        <div class="stat-card">
+            <h3>在访访客</h3>
+            <div class="value">{{ current_visitors }}</div>
+        </div>
+    </div>
+    
+    <!-- 最近活动卡片 -->
+    <div class="card">
+        <h2>最近活动</h2>
+        {% if all_activities %}
+            <ul class="activity-list">
+                {% for activity in all_activities %}
+                    <li class="activity-item">
+                        <div class="activity-dot {{ activity.type }}"></div>
+                        <div class="activity-content">
+                            <div class="activity-title">
+                                {% if activity.type == "repair" %}
+                                    新报修：{{ activity.item.title }}
+                                {% elif activity.type == "visitor" %}
+                                    访客登记：{{ activity.item.name }}
+                                {% elif activity.type == "dorm_change" %}
+                                    宿舍调换申请：{{ activity.item.student.name }}
+                                {% endif %}
+                            </div>
+                            <div class="activity-desc">
+                                {% if activity.type == "repair" %}
+                                    学生 {{ activity.item.student.name if activity.item.student else '未知' }} 提交了报修申请
+                                {% elif activity.type == "visitor" %}
+                                    访客 {{ activity.item.name }} 访问了宿舍 {{ activity.item.dorm_number }}
+                                {% elif activity.type == "dorm_change" %}
+                                    学生 {{ activity.item.student.name }} 提交了宿舍调换申请
+                                {% endif %}
+                            </div>
+                            <div class="activity-meta">
+                                {{ activity.timestamp.strftime('%Y-%m-%d %H:%M') }}
+                                <span class="status-{{ activity.item.status }}">
+                                    {{ activity.item.status | capitalize }}
+                                </span>
+                            </div>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p style="color: #666;">暂无活动记录</p>
+        {% endif %}
+    </div>
+    
+    <!-- 快速操作卡片 -->
+    <div class="card">
+        <h2>快速操作</h2>
+        <div class="btn-group">
+            <a href="{{ url_for('dorm_manager.repairs') }}" class="btn btn-primary">查看报修列表</a>
+            <a href="{{ url_for('dorm_manager.visitors') }}" class="btn btn-primary">查看访客列表</a>
+            <a href="{{ url_for('dorm_manager.dorm_change_requests') }}" class="btn btn-primary">查看宿舍调换申请</a>
+        </div>
+    </div>
+{% endblock %}

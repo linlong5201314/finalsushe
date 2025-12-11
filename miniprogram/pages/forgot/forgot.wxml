@@ -1,0 +1,11 @@
+<view class="container">
+  <view class="card" style="background:var(--primary-gradient);color:#fff;">
+    <text style="font-size:36rpx;font-weight:bold;">密码重置申请</text>
+    <text style="opacity:0.9;margin-top:8rpx;">提交后由管理员/宿管处理</text>
+  </view>
+  <view class="card">
+    <input class="input" placeholder="注册邮箱" bindinput="onInput" data-field="email" />
+    <input class="input" placeholder="姓名" bindinput="onInput" data-field="name" />
+    <button class="btn-primary" bindtap="submit">提交申请</button>
+  </view>
+</view>

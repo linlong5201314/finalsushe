@@ -1,0 +1,165 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}报修管理{% endblock %}
+{% block header %}报修管理{% endblock %}
+
+{% block content %}
+    <!-- 报修列表卡片 -->
+    <div class="card">
+        <h2>报修列表</h2>
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>报修标题</th>
+                        <th>宿舍号</th>
+                        <th>学生姓名</th>
+                        <th>状态</th>
+                        <th>创建时间</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for repair in repairs %}
+                    <tr>
+                        <td>{{ repair.title }}</td>
+                        <td>{{ repair.dormitory.dorm_number if repair.dormitory else '未知' }}</td>
+                        <td>{{ repair.student.name if repair.student else '未知' }}</td>
+                        <td>
+                            {% if repair.status == 'pending' %}
+                                <span class="status-pending">待处理</span>
+                            {% elif repair.status == 'processing' %}
+                                <span class="status-processing">处理中</span>
+                            {% else %}
+                                <span class="status-completed">已完成</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ repair.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>
+                            <button class="btn btn-primary" onclick="showRepairDetails({{ repair.id }})">查看详情</button>
+                            <button class="btn btn-success" onclick="processRepair({{ repair.id }}, '{{ repair.status }}')">处理</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <!-- 保修详情模态框 -->
+    <div id="repairModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="repairModalTitle">保修详情</h3>
+                <button class="modal-close" onclick="closeRepairModal()">&times;</button>
+            </div>
+            <div id="repairModalBody">
+                <!-- 保修详情将通过JavaScript动态加载 -->
+            </div>
+        </div>
+    </div>
+    
+    <!-- 保修处理模态框 -->
+    <div id="processModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="processModalTitle">处理保修</h3>
+                <button class="modal-close" onclick="closeProcessModal()">&times;</button>
+            </div>
+            <form id="processForm" method="POST" action="{{ url_for('admin.process_repair') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+                <input type="hidden" id="repairId" name="repair_id">
+                <div class="form-group">
+                    <label for="status">处理状态</label>
+                    <select id="status" name="status">
+                        <option value="pending">待处理</option>
+                        <option value="processing">处理中</option>
+                        <option value="completed">已完成</option>
+                    </select>
+                </div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <button type="submit" class="btn btn-success">保存状态</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script>
+        // 报修详情模态框控制函数
+        function showRepairDetails(repairId) {
+            const modal = document.getElementById('repairModal');
+            const modalBody = document.getElementById('repairModalBody');
+            
+            // 显示加载状态
+            modalBody.innerHTML = '<div style="text-align: center; padding: 50px;"><p>加载中...</p></div>';
+            modal.classList.add('active');
+            
+            // 获取保修详情
+            fetch(`/admin/get_repair_details/${repairId}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        let detailsHtml = `
+                            <div style="line-height: 1.8;">
+                                <h3 style="color: #667eea; margin-top: 0;">${data.repair.title}</h3>
+                                <p><strong>报修人：</strong>${data.repair.student_name}</p>
+                                <p><strong>联系电话：</strong>${data.repair.contact_phone}</p>
+                                <p><strong>宿舍号：</strong>${data.repair.dorm_number}</p>
+                                <p><strong>位置类型：</strong>${data.repair.location_type}</p>
+                                <p><strong>报修类型：</strong>${data.repair.repair_type}</p>
+                                <p><strong>详细位置：</strong>${data.repair.location_detail}</p>
+                                <p><strong>紧急程度：</strong>${data.repair.urgent_level}</p>
+                                <p><strong>状态：</strong>${data.repair.status_text}</p>
+                                <p><strong>创建时间：</strong>${data.repair.created_at}</p>
+                                <p><strong>更新时间：</strong>${data.repair.updated_at}</p>
+                                <h4 style="color: #333; margin-top: 20px;">报修内容：</h4>
+                                <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; border-left: 4px solid #667eea;">
+                                    ${data.repair.content}
+                                </div>
+                            </div>
+                        `;
+                        modalBody.innerHTML = detailsHtml;
+                        document.getElementById('repairModalTitle').textContent = `保修详情 - ${data.repair.title}`;
+                    } else {
+                        modalBody.innerHTML = `<div style="text-align: center; padding: 50px; color: red;"><p>${data.message}</p></div>`;
+                    }
+                })
+                .catch(error => {
+                    modalBody.innerHTML = `<div style="text-align: center; padding: 50px; color: red;"><p>加载失败，请重试</p></div>`;
+                    console.error('Error:', error);
+                });
+        }
+        
+        function closeRepairModal() {
+            document.getElementById('repairModal').classList.remove('active');
+        }
+        
+        // 保修处理模态框控制函数
+        function processRepair(repairId, currentStatus) {
+            const modal = document.getElementById('processModal');
+            const repairIdInput = document.getElementById('repairId');
+            const statusSelect = document.getElementById('status');
+            
+            repairIdInput.value = repairId;
+            statusSelect.value = currentStatus;
+            modal.classList.add('active');
+        }
+        
+        function closeProcessModal() {
+            document.getElementById('processModal').classList.remove('active');
+        }
+        
+        // 点击模态框外部关闭
+        document.getElementById('repairModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeRepairModal();
+            }
+        });
+        
+        document.getElementById('processModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeProcessModal();
+            }
+        });
+    </script>
+{% endblock %}

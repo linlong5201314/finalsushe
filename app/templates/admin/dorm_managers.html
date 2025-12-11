@@ -1,0 +1,44 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}宿管管理 - 管理员后台{% endblock %}
+{% block header %}宿管管理{% endblock %}
+
+{% block content %}
+    <!-- 宿管管理内容 -->
+    <div class="card">
+        <h2>宿管管理</h2>
+        <div style="margin-bottom: 20px;">
+            <a href="{{ url_for('admin.add_dorm_manager') }}" class="btn btn-primary">添加宿管</a>
+        </div>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>用户名</th>
+                        <th>姓名</th>
+                        <th>邮箱</th>
+                        <th>电话</th>
+                        <th>负责楼栋</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for manager in managers %}
+                    <tr>
+                        <td>{{ manager.user.username }}</td>
+                        <td>{{ manager.name }}</td>
+                        <td>{{ manager.user.email }}</td>
+                        <td>{{ manager.phone }}</td>
+                        <td>{{ manager.responsible_building }}</td>
+                        <td>
+                            <a href="{{ url_for('admin.edit_dorm_manager', manager_id=manager.id) }}" class="btn btn-primary">编辑</a>
+                            <a href="{{ url_for('admin.delete_dorm_manager', manager_id=manager.id) }}" class="btn btn-danger" onclick="return confirm('确定要删除该宿管吗？')">删除</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

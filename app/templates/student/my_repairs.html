@@ -1,0 +1,111 @@
+{% extends 'student/base.html' %}
+
+{% block title %}我的报修{% endblock %}
+{% block header %}我的报修{% endblock %}
+
+{% block content %}
+    <style>
+        /* 按钮样式 */
+        .btn {
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 20px;
+        }
+        
+        /* 表格样式 */
+        table {
+            margin-top: 20px;
+        }
+        
+        /* 状态标签样式 */
+        .status-pending {
+            background-color: #ffc107;
+            color: #333;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-processing {
+            background-color: #17a2b8;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-completed {
+            background-color: #28a745;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        /* 无数据样式 */
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        .no-data-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+    </style>
+    
+    <!-- 报修列表卡片 -->
+    <div class="card">
+        <h2>报修记录</h2>
+        <a href="{{ url_for('student.submit_repair') }}" class="btn">提交新报修</a>
+        
+        {% if repairs %}
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>报修标题</th>
+                        <th>报修类型</th>
+                        <th>报修场所</th>
+                        <th>具体位置</th>
+                        <th>状态</th>
+                        <th>提交时间</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for repair in repairs %}
+                    <tr>
+                        <td>{{ repair.title }}</td>
+                        <td>{{ repair.repair_type }}</td>
+                        <td>{{ repair.location_type }}</td>
+                        <td>{{ repair.location_detail }}</td>
+                        <td>
+                            {% if repair.status == 'pending' %}
+                                <span class="status-pending">待处理</span>
+                            {% elif repair.status == 'processing' %}
+                                <span class="status-processing">处理中</span>
+                            {% else %}
+                                <span class="status-completed">已完成</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ repair.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="no-data">
+            <div class="no-data-icon">📋</div>
+            <h3>暂无报修记录</h3>
+            <p>点击上方按钮提交新报修</p>
+        </div>
+        {% endif %}
+    </div>
+{% endblock %}

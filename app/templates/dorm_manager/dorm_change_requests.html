@@ -1,0 +1,117 @@
+{% extends 'dorm_manager/base.html' %}
+
+{% block title %}宿舍调换管理 - 宿管后台{% endblock %}
+{% block header %}宿舍调换申请管理{% endblock %}
+
+{% block content %}
+    <!-- 宿舍调换申请列表卡片 -->
+    <div class="card">
+        <h2>宿舍调换申请管理</h2>
+        
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="搜索学生姓名或学号..." id="search-input">
+            <button class="btn btn-primary" onclick="searchRequests()">搜索</button>
+        </div>
+        
+        <div class="filter-buttons">
+            <button class="btn btn-secondary active filter-btn" onclick="filterRequests('all')">全部</button>
+            <button class="btn btn-secondary filter-btn" onclick="filterRequests('pending')">待处理</button>
+            <button class="btn btn-secondary filter-btn" onclick="filterRequests('approved')">已批准</button>
+            <button class="btn btn-secondary filter-btn" onclick="filterRequests('rejected')">已拒绝</button>
+        </div>
+        
+        <div class="table-container">
+            <table id="dormChangeRequests-table">
+                <thead>
+                    <tr>
+                        <th>学生姓名</th>
+                        <th>学号</th>
+                        <th>当前宿舍</th>
+                        <th>目标宿舍</th>
+                        <th>调换原因</th>
+                        <th>提交时间</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% if requests %}
+                        {% for request in requests %}
+                            <tr>
+                                <td>{{ request.student.name }}</td>
+                                <td>{{ request.student.student_id }}</td>
+                                <td>{{ request.current_dorm.dorm_number if request.current_dorm else '未知' }}</td>
+                                <td>{{ request.target_dorm.dorm_number if request.target_dorm else '未指定' }}</td>
+                                <td>{{ request.reason }}</td>
+                                <td>{{ request.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                                <td>
+                                    <span class="status-{{ request.status }} {{ request.status }} status">{{ request.status }}</span>
+                                </td>
+                                <td>
+                                    {% if request.status == 'pending' %}
+                                        <a href="{{ url_for('dorm_manager.approve_dorm_change', request_id=request.id) }}" class="btn btn-success" style="margin-right: 5px;">批准</a>
+                                        <a href="{{ url_for('dorm_manager.reject_dorm_change', request_id=request.id) }}" class="btn btn-danger">拒绝</a>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    {% else %}
+                        <tr>
+                            <td colspan="8" style="text-align: center;">暂无宿舍调换申请</td>
+                        </tr>
+                    {% endif %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        // 搜索申请功能
+        function searchRequests() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const rows = document.querySelectorAll('#dormChangeRequests-table tbody tr');
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                let match = false;
+                
+                cells.forEach(cell => {
+                    if (cell.textContent.toLowerCase().includes(searchTerm)) {
+                        match = true;
+                    }
+                });
+                
+                row.style.display = match ? '' : 'none';
+            });
+        }
+        
+        // 筛选申请功能
+        function filterRequests(status) {
+            const rows = document.querySelectorAll('#dormChangeRequests-table tbody tr');
+            const buttons = document.querySelectorAll('.filter-btn');
+            
+            // 更新筛选按钮状态
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // 筛选申请
+            rows.forEach(row => {
+                const statusCell = row.querySelector('.status');
+                if (status === 'all' || statusCell.classList.contains(status)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+        
+        // 支持回车键搜索
+        document.getElementById('search-input').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                searchRequests();
+            }
+        });
+    </script>
+{% endblock %}

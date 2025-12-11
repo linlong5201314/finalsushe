@@ -1,0 +1,23 @@
+<view class="container">
+  <view style="display:flex;background:#fff;padding:0 30rpx;">
+    <view style="flex:1;text-align:center;padding:30rpx 0;" bindtap="switch" data-i="0">访客记录</view>
+    <view style="flex:1;text-align:center;padding:30rpx 0;" bindtap="switch" data-i="1">访客登记</view>
+  </view>
+  <view wx:if="{{tab===0}}">
+    <block wx:for="{{visitors}}" wx:key="id">
+      <view class="card">
+        <view class="list-item"><text class="label">姓名</text><text>{{item.name}}</text></view>
+        <view class="list-item"><text class="label">访问时间</text><text>{{item.visit_date}}</text></view>
+        <view class="list-item"><text class="label">事由</text><text>{{item.purpose}}</text></view>
+      </view>
+    </block>
+  </view>
+  <view wx:if="{{tab===1}}" class="card">
+    <input class="input" placeholder="姓名" bindinput="onInput" data-field="name" />
+    <input class="input" placeholder="身份证号" bindinput="onInput" data-field="id_card" />
+    <input class="input" placeholder="电话" bindinput="onInput" data-field="phone" />
+    <input class="input" placeholder="宿舍号" bindinput="onInput" data-field="dorm_number" />
+    <textarea class="input" style="height:160rpx" placeholder="事由" bindinput="onInput" data-field="purpose" />
+    <button class="btn-primary" bindtap="submit">提交登记</button>
+  </view>
+</view>

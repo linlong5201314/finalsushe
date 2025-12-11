@@ -1,0 +1,128 @@
+{% extends 'student/base.html' %}
+
+{% block title %}支付水电费{% endblock %}
+{% block header %}支付水电费{% endblock %}
+
+{% block content %}
+    <style>
+        .content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            max-width: 600px;
+            margin: 0 auto;
+        }
+        h2 {
+            margin-top: 0;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 10px;
+            text-align: center;
+        }
+        .bill-info {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .bill-info p {
+            margin: 10px 0;
+        }
+        .bill-info .label {
+            font-weight: bold;
+            color: #333;
+        }
+        .payment-form {
+            margin-top: 20px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 3px;
+            box-sizing: border-box;
+        }
+        .form-group .amount {
+            font-size: 24px;
+            font-weight: bold;
+            color: #f44336;
+        }
+        .pay-button {
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 16px;
+            width: 100%;
+            margin-top: 20px;
+        }
+        .pay-button:hover {
+            background-color: #45a049;
+        }
+        .back-btn {
+            background-color: #9e9e9e;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 3px;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            margin-top: 10px;
+            font-size: 14px;
+        }
+        .back-btn:hover {
+            background-color: #757575;
+        }
+    </style>
+    
+    <div class="content">
+        <h2>支付水电费</h2>
+        
+        <div class="bill-info">
+            <p><span class="label">宿舍：</span>{{ bill.dormitory.dorm_number if bill.dormitory else '未知' }}</p>
+            <p><span class="label">月份：</span>{{ bill.month }}</p>
+            <p><span class="label">用电量：</span>{{ bill.electricity }} 度</p>
+            <p><span class="label">电费：</span>{{ bill.electricity_cost }} 元</p>
+            <p><span class="label">用水量：</span>{{ bill.water }} 吨</p>
+            <p><span class="label">水费：</span>{{ bill.water_cost }} 元</p>
+            <p><span class="label">总费用：</span><span class="amount">{{ bill.total_cost }} 元</span></p>
+        </div>
+        
+        <form class="payment-form" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <div class="form-group">
+                <label for="amount">支付金额</label>
+                <input type="number" id="amount" name="amount" value="{{ bill.total_cost }}" step="0.01" readonly>
+            </div>
+            
+            <div class="form-group">
+                <label for="payment_method">支付方式</label>
+                <select id="payment_method" name="payment_method" required>
+                    <option value="wechat">微信支付</option>
+                    <option value="alipay">支付宝</option>
+                    <option value="bank">银行转账</option>
+                    <option value="cash">现金支付</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="pay-button">确认支付</button>
+        </form>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <a href="{{ url_for('student.my_utility_bills') }}" class="back-btn">返回账单列表</a>
+        </div>
+    </div>
+{% endblock %}

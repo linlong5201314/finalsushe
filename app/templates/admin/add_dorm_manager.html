@@ -1,0 +1,36 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}添加宿管{% endblock %}
+{% block header %}添加宿管{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h2>添加宿管</h2>
+        <form action="{{ url_for('admin.add_dorm_manager') }}" method="post">
+            <div class="form-group">
+                <label for="username">用户名</label>
+                <input type="text" id="username" name="username" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="name">姓名</label>
+                <input type="text" name="name" id="name" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="email">邮箱</label>
+                <input type="email" name="email" id="email" class="form-control" required placeholder="例如: manager@163.com">
+            </div>
+            <div class="form-group">
+                <label for="phone">电话</label>
+                <input type="text" id="phone" name="phone" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="responsible_building">负责楼栋</label>
+                <input type="text" id="responsible_building" name="responsible_building" class="form-control" required>
+            </div>
+            <div class="form-buttons">
+                <button type="submit" class="btn btn-primary">添加</button>
+                <a href="{{ url_for('admin.dorm_managers') }}" class="btn btn-secondary">取消</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

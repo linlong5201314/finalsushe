@@ -1,0 +1,160 @@
+{% extends 'dorm_manager/base.html' %}
+
+{% block title %}访客管理 - 宿管后台{% endblock %}
+{% block header %}访客管理{% endblock %}
+
+{% block content %}
+    <!-- 访客列表卡片 -->
+    <div class="card">
+        <h2>本楼栋访客列表</h2>
+        
+        <div class="search-container">
+            <input type="text" class="search-input" placeholder="搜索访客姓名或身份证号..." id="search-input">
+            <button class="btn btn-primary" onclick="searchVisitors()">搜索</button>
+        </div>
+        
+        <div class="filter-buttons">
+            <button class="btn btn-secondary active filter-btn" onclick="filterVisitors('all')">全部</button>
+            <button class="btn btn-secondary filter-btn" onclick="filterVisitors('in')">在访</button>
+            <button class="btn btn-secondary filter-btn" onclick="filterVisitors('out')">已离开</button>
+        </div>
+        
+        <div class="table-container">
+            <table id="visitors-table">
+                <thead>
+                <tr>
+                    <th>访客姓名</th>
+                    <th>身份证号</th>
+                    <th>联系电话</th>
+                    <th>访问宿舍</th>
+                    <th>被访学生</th>
+                    <th>访问目的</th>
+                    <th>访问时间</th>
+                    <th>离开时间</th>
+                    <th>状态</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if visitors %}
+                    {% for visitor in visitors %}
+                        <tr>
+                            <td>{{ visitor.name }}</td>
+                            <td>{{ visitor.id_card }}</td>
+                            <td>{{ visitor.phone }}</td>
+                            <td>{{ visitor.dorm_number }}</td>
+                            <td>{{ visitor.student_name }}</td>
+                            <td>{{ visitor.purpose }}</td>
+                            <td>{{ visitor.visit_date.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                            <td>{{ visitor.leave_date.strftime('%Y-%m-%d %H:%M:%S') if visitor.leave_date else '未离开' }}</td>
+                            <td>
+                                <span class="status-{{ visitor.status }} {{ visitor.status }} status">{{ visitor.status }}</span>
+                            </td>
+                            <td>
+                                {% if visitor.status == 'in' %}
+                                    <button class="btn btn-danger" onclick="markVisitorLeave({{ visitor.id }})">标记离开</button>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="10" style="text-align: center;">暂无访客记录</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        // 搜索访客功能
+        function searchVisitors() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const rows = document.querySelectorAll('#visitors-table tbody tr');
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                let match = false;
+                
+                cells.forEach(cell => {
+                    if (cell.textContent.toLowerCase().includes(searchTerm)) {
+                        match = true;
+                    }
+                });
+                
+                row.style.display = match ? '' : 'none';
+            });
+        }
+        
+        // 筛选访客功能
+        function filterVisitors(status) {
+            const rows = document.querySelectorAll('#visitors-table tbody tr');
+            const buttons = document.querySelectorAll('.filter-btn');
+            
+            // 更新筛选按钮状态
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            // 筛选访客
+            rows.forEach(row => {
+                const statusCell = row.querySelector('.status');
+                if (status === 'all' || statusCell.classList.contains(status)) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+        
+        // 标记访客离开
+        function markVisitorLeave(visitorId) {
+            // 发起AJAX请求标记访客离开
+            fetch(`{{ url_for('dorm_manager.mark_visitor_leave', visitor_id=0) }}`.replace('0', visitorId), {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': getCookie('csrf_token')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // 刷新页面
+                    location.reload();
+                } else {
+                    alert(data.message);
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('标记访客离开失败，请重试');
+            });
+        }
+        
+        // 获取CSRF Token
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // 支持回车键搜索
+        document.getElementById('search-input').addEventListener('keyup', function(event) {
+            if (event.key === 'Enter') {
+                searchVisitors();
+            }
+        });
+    </script>
+{% endblock %}

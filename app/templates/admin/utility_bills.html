@@ -1,0 +1,57 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}水电费管理 - 管理员后台{% endblock %}
+{% block header %}水电费管理{% endblock %}
+
+{% block content %}
+    <!-- 水电费管理内容 -->
+    <div class="card">
+        <h2>水电费管理</h2>
+        <div style="margin-bottom: 20px;">
+            <a href="{{ url_for('admin.add_utility_bill') }}" class="btn btn-primary" style="margin-right: 10px;">添加账单</a>
+            <a href="{{ url_for('admin.utility_bills_statistics') }}" class="btn btn-secondary">统计分析</a>
+        </div>
+        
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>宿舍号</th>
+                        <th>月份</th>
+                        <th>用电量(度)</th>
+                        <th>电费(元)</th>
+                        <th>用水量(吨)</th>
+                        <th>水费(元)</th>
+                        <th>总费用(元)</th>
+                        <th>状态</th>
+                        <th>操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for bill in bills %}
+                    <tr>
+                        <td>{{ bill.dormitory.dorm_number }}</td>
+                        <td>{{ bill.month }}</td>
+                        <td>{{ bill.electricity }}</td>
+                        <td>{{ bill.electricity_cost }}</td>
+                        <td>{{ bill.water }}</td>
+                        <td>{{ bill.water_cost }}</td>
+                        <td>{{ bill.total_cost }}</td>
+                        <td>
+                            {% if bill.status == 'paid' %}
+                            <span class="status-completed">已缴费</span>
+                            {% else %}
+                            <span class="status-pending">未缴费</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            <a href="{{ url_for('admin.edit_utility_bill', bill_id=bill.id) }}" class="btn btn-primary">编辑</a>
+                            <a href="{{ url_for('admin.delete_utility_bill', bill_id=bill.id) }}" class="btn btn-danger" onclick="return confirm('确定要删除该账单吗？')">删除</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}

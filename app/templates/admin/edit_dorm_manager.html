@@ -1,0 +1,32 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}编辑宿管{% endblock %}
+{% block header %}编辑宿管{% endblock %}
+
+{% block content %}
+    <div class="card">
+        <h2>编辑宿管信息</h2>
+        <form method="post">
+            <div class="form-group">
+                <label for="name">姓名</label>
+                <input type="text" name="name" id="name" class="form-control" value="{{ dorm_manager.name }}" required>
+            </div>
+            <div class="form-group">
+                <label for="email">邮箱</label>
+                <input type="email" name="email" id="email" class="form-control" value="{{ dorm_manager.user.email }}" required>
+            </div>
+            <div class="form-group">
+                <label for="phone">电话</label>
+                <input type="text" name="phone" id="phone" class="form-control" value="{{ dorm_manager.phone }}" required>
+            </div>
+            <div class="form-group">
+                <label for="responsible_building">负责楼栋</label>
+                <input type="text" name="responsible_building" id="responsible_building" class="form-control" value="{{ dorm_manager.responsible_building }}" required>
+            </div>
+            <div class="form-buttons">
+                <button type="submit" class="btn btn-primary">保存更改</button>
+                <a href="{{ url_for('admin.dorm_managers') }}" class="btn btn-secondary">取消</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

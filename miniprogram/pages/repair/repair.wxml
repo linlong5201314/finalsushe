@@ -1,0 +1,19 @@
+<view class="container">
+  <view class="card">
+    <text style="font-weight:bold;">提交新报修</text>
+    <input class="input" placeholder="标题" bindinput="onInput" data-field="title" />
+    <textarea class="input" style="height:160rpx" placeholder="详细描述" bindinput="onInput" data-field="content" />
+    <picker mode="selector" range="{{locationTypes}}" bindchange="onLocChange"><view class="picker">区域类型：{{locationTypes[locIndex]}}</view></picker>
+    <picker mode="selector" range="{{repairTypes}}" bindchange="onTypeChange"><view class="picker">维修类型：{{repairTypes[typeIndex]}}</view></picker>
+    <input class="input" placeholder="具体地点" bindinput="onInput" data-field="location_detail" />
+    <input class="input" placeholder="联系电话" bindinput="onInput" data-field="contact_phone" />
+    <button class="btn-primary" bindtap="submit">提交</button>
+  </view>
+  <view class="card">
+    <text style="font-weight:bold;">历史报修</text>
+    <block wx:for="{{repairs}}" wx:key="id">
+      <view class="list-item"><text>{{item.title}}</text><text class="status status-{{item.status}}">{{item.status}}</text></view>
+      <view style="color:#888;font-size:24rpx;margin:10rpx 0;">{{item.created_at}}</view>
+    </block>
+  </view>
+</view>

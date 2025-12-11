@@ -1,0 +1,146 @@
+{% extends 'student/base.html' %}
+
+{% block title %}我的访客{% endblock %}
+{% block header %}我的访客{% endblock %}
+
+{% block content %}
+    <style>
+        /* 表格样式 */
+        table {
+            margin-top: 20px;
+        }
+        
+        /* 状态标签样式 */
+        .status-in {
+            background-color: #28a745;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .status-out {
+            background-color: #6c757d;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        /* 无数据样式 */
+        .no-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+        
+        /* 二维码按钮样式 */
+        .qr-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 5px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+        
+        .qr-btn:hover {
+            background-color: #0069d9;
+        }
+    </style>
+    
+    <!-- 访客列表卡片 -->
+    <div class="card">
+        <h2>访客记录</h2>
+        <div style="margin-bottom: 20px;">
+            <a href="{{ url_for('student.visitor_register') }}" class="btn">新增访客登记</a>
+        </div>
+        
+        {% if visitors %}
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>访客姓名</th>
+                        <th>身份证号</th>
+                        <th>联系电话</th>
+                        <th>访问目的</th>
+                        <th>访问时间</th>
+                        <th>离开时间</th>
+                        <th>状态</th>
+                        <th>访客二维码</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for visitor in visitors %}
+                    <tr>
+                        <td>{{ visitor.name }}</td>
+                        <td>{{ visitor.id_card }}</td>
+                        <td>{{ visitor.phone }}</td>
+                        <td>{{ visitor.purpose }}</td>
+                        <td>{{ visitor.visit_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>{{ visitor.leave_date.strftime('%Y-%m-%d %H:%M') if visitor.leave_date else '未离开' }}</td>
+                        <td>
+                            {% if visitor.status == 'in' %}
+                                <span class="status-in">在访</span>
+                            {% else %}
+                                <span class="status-out">已离开</span>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if visitor.qr_code %}
+                                <button class="qr-btn" onclick="showQRCode('{{ url_for('static', filename=visitor.qr_code) }}', '{{ visitor.name }}')">查看二维码</button>
+                            {% else %}
+                                无
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 50px; color: #999;">
+            <p>暂无访客记录</p>
+            <p style="margin-top: 10px;">点击上方按钮添加新的访客登记</p>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- 二维码模态框 -->
+    <div id="qrModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeQRCode()">&times;</span>
+            <h3 id="qrTitle">访客二维码</h3>
+            <div id="qrImageContainer">
+                <img id="qrImage" src="" alt="访客二维码">
+            </div>
+            <p>请将此二维码分享给访客，用于进出宿舍时扫描</p>
+        </div>
+    </div>
+    
+    <script>
+        // 显示二维码模态框
+        function showQRCode(qrUrl, visitorName) {
+            document.getElementById('qrTitle').textContent = `${visitorName} 的访客二维码`;
+            document.getElementById('qrImage').src = qrUrl;
+            document.getElementById('qrModal').style.display = 'block';
+        }
+        
+        // 关闭二维码模态框
+        function closeQRCode() {
+            document.getElementById('qrModal').style.display = 'none';
+        }
+        
+        // 点击模态框外部关闭
+        window.onclick = function(event) {
+            const modal = document.getElementById('qrModal');
+            if (event.target == modal) {
+                modal.style.display = 'none';
+            }
+        }
+    </script>
+{% endblock %}

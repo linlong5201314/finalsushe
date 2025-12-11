@@ -1,0 +1,40 @@
+{% extends 'admin/base.html' %}
+
+{% block title %}编辑水电费账单 - 管理员后台{% endblock %}
+{% block header %}编辑水电费账单{% endblock %}
+
+{% block content %}
+    <!-- 编辑水电费账单表单 -->
+    <div class="card">
+        <h2>水电费账单信息</h2>
+        <form method="POST" action="{{ url_for('admin.edit_utility_bill', bill_id=bill.id) }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="dorm_id">宿舍</label>
+                    <select id="dorm_id" name="dorm_id" required>
+                        {% for dorm in dormitories %}
+                        <option value="{{ dorm.id }}" {% if dorm.id == bill.dorm_id %}selected{% endif %}>{{ dorm.building }}栋{{ dorm.dorm_number }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="month">月份</label>
+                    <input type="month" id="month" name="month" value="{{ bill.month }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="electricity">用电量(度)</label>
+                    <input type="number" id="electricity" name="electricity" step="0.01" min="0" value="{{ bill.electricity }}" required>
+                </div>
+                <div class="form-group">
+                    <label for="water">用水量(吨)</label>
+                    <input type="number" id="water" name="water" step="0.01" min="0" value="{{ bill.water }}" required>
+                </div>
+            </div>
+            <div style="margin-top: 20px;">
+                <button type="submit" class="btn btn-primary">更新账单</button>
+                <a href="{{ url_for('admin.utility_bills') }}" class="btn btn-secondary" style="margin-left: 10px;">返回账单列表</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

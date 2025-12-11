@@ -1,0 +1,87 @@
+{% extends 'student/base.html' %}
+
+{% block title %}访客登记{% endblock %}
+{% block header %}访客登记{% endblock %}
+
+{% block content %}
+    <style>
+        /* 表单样式 */
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: #555;
+            font-weight: 600;
+            font-size: 16px;
+        }
+        
+        .form-group textarea {
+            resize: vertical;
+            min-height: 120px;
+        }
+        
+        /* 按钮样式 */
+        .btn {
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            margin-right: 15px;
+        }
+        
+        .btn-secondary {
+            background: #6c757d;
+        }
+        
+        .btn-secondary:hover {
+            box-shadow: 0 8px 20px rgba(108, 117, 125, 0.3);
+        }
+    </style>
+    
+    <!-- 访客登记表单卡片 -->
+    <div class="card">
+        <h2>访客信息填写</h2>
+        <form method="POST" action="{{ url_for('student.visitor_register') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}"/>
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="name">访客姓名</label>
+                    <input type="text" id="name" name="name" required placeholder="请输入访客姓名">
+                </div>
+                
+                <div class="form-group">
+                    <label for="id_card">身份证号</label>
+                    <input type="text" id="id_card" name="id_card" required placeholder="请输入访客身份证号">
+                </div>
+            </div>
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="phone">联系电话</label>
+                    <input type="tel" id="phone" name="phone" required placeholder="请输入访客联系电话">
+                </div>
+                
+                <div class="form-group">
+                    <label for="dorm_number">访问宿舍</label>
+                    <input type="text" id="dorm_number" name="dorm_number" 
+                           value="{{ student.dormitory.dorm_number if student.dormitory else '' }}" 
+                           {% if not student.dormitory %}required{% endif %} 
+                           placeholder="请输入访问宿舍号">
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="purpose">访问目的</label>
+                <textarea id="purpose" name="purpose" required placeholder="请输入访问目的，如：朋友聚会、家长探访等"></textarea>
+            </div>
+            
+            <div style="margin-top: 40px;">
+                <button type="submit" class="btn">登记访客</button>
+                <a href="{{ url_for('student.my_visitors') }}" class="btn btn-secondary">查看访客记录</a>
+            </div>
+        </form>
+    </div>
+{% endblock %}

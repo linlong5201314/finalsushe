@@ -1,0 +1,91 @@
+{% extends 'dorm_manager/base.html' %}
+
+{% block title %}报修管理 - 宿管后台{% endblock %}
+{% block header %}报修管理{% endblock %}
+
+{% block content %}
+    <!-- 报修列表卡片 -->
+    <div class="card">
+        <h2>本楼栋报修列表</h2>
+        
+        <div class="search-container" style="margin-bottom: 20px; display: flex; gap: 10px;">
+            <input type="text" class="form-control" placeholder="搜索报修标题..." id="search-input" style="max-width: 300px;">
+            <button class="btn btn-primary" onclick="searchRepairs()">搜索</button>
+        </div>
+        
+        <div class="table-container">
+            <table id="repairs-table">
+                <thead>
+                <tr>
+                    <th>报修标题</th>
+                    <th>报修人</th>
+                    <th>宿舍</th>
+                    <th>区域</th>
+                    <th>紧急程度</th>
+                    <th>状态</th>
+                    <th>提交时间</th>
+                    <th>操作</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if repairs %}
+                    {% for repair in repairs %}
+                        <tr>
+                            <td>{{ repair.title }}</td>
+                            <td>{{ repair.student.name if repair.student else '未知' }}</td>
+                            <td>{{ repair.dormitory.dorm_number if repair.dormitory else '-' }}</td>
+                            <td>{{ repair.location_type }}</td>
+                            <td>
+                                {% if repair.urgent_level == 'high' %}
+                                    <span style="color: red; font-weight: bold;">紧急</span>
+                                {% elif repair.urgent_level == 'medium' %}
+                                    <span style="color: orange;">普通</span>
+                                {% else %}
+                                    <span style="color: green;">低</span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <span class="status-{{ repair.status }}">{{ repair.status | capitalize }}</span>
+                            </td>
+                            <td>{{ repair.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                            <td>
+                                <a href="{{ url_for('dorm_manager.handle_repair', repair_id=repair.id) }}" class="btn btn-primary">处理</a>
+                            </td>
+                        </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="8" style="text-align: center;">暂无报修记录</td>
+                    </tr>
+                {% endif %}
+            </tbody>
+            </table>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    <script>
+        // 搜索报修功能
+        function searchRepairs() {
+            const searchTerm = document.getElementById('search-input').value.toLowerCase();
+            const rows = document.querySelectorAll('#repairs-table tbody tr');
+            
+            rows.forEach(row => {
+                const cells = row.querySelectorAll('td');
+                let match = false;
+                
+                // 搜索第一列（标题）
+                if (cells[0] && cells[0].textContent.toLowerCase().includes(searchTerm)) {
+                    match = true;
+                }
+                
+                if (match) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+    </script>
+{% endblock %}
